@@ -1,12 +1,15 @@
 #ifndef UNTITLED_CHIP8_H
 #define UNTITLED_CHIP8_H
+#include <string>
 #endif //UNTITLED_CHIP8_H
 
 #include <cstdint>
 class Chip8 {
     public:
         Chip8();
-
+        void loadROM(const std::string& filename);
+        uint16_t FETCH();
+        void cycle();
     private:
     uint8_t memory[4096]; //RAM
     uint8_t V[16]; //V0-VF Reg
@@ -18,6 +21,7 @@ class Chip8 {
     uint8_t sp; //Stack Pointer
     uint8_t delay_timer; //Countdown for game delay
     uint8_t sound_timer; //Countdown for sound
+    uint8_t cycle_timer;
 
 
 };
