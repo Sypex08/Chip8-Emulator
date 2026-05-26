@@ -4,7 +4,9 @@ project(untitled)
 set(CMAKE_CXX_STANDARD 23)
 
 # 1. Das Executable definieren (Name: untitled)
-add_executable(untitled Chip8.cpp Chip8.h)
+add_executable(untitled Chip8.cpp Chip8.h
+        main.cpp
+)
 
 # 2. SFML suchen
 find_package(SFML COMPONENTS Network Graphics Window Audio System CONFIG REQUIRED)

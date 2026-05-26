@@ -2,9 +2,6 @@
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
-#include <cstdint>
-#include <ctime>
-#include <SFML/Graphics.hpp>
 
 const uint8_t FONTSET[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -33,7 +30,9 @@ Chip8::Chip8():
     sound_timer(0),
     memory{},
     V{},
-    stack{}
+    stack{},
+    display{},
+    keypad{}
 {
     for (int i = 0 ; i < 80 ; i++) {
         memory[i] = FONTSET[i];
@@ -49,7 +48,6 @@ void Chip8::loadROM(const std::string& filename) {
     }
 
     std::streampos size = file.tellg();
-
 
     if (size > 3584) {
         std::cout << "Error: ROM is too big for CHIP-8 memory (" << size << " bytes)." << std::endl;
@@ -67,10 +65,7 @@ void Chip8::loadROM(const std::string& filename) {
 uint16_t Chip8::FETCH() {
     uint8_t count = memory[PC];
     uint8_t countpp = memory[PC + 1];
-
-    uint8_t opcode = (static_cast<uint16_t>(count)) << 8 | countpp;
-
-    return opcode;
+    return (static_cast<uint16_t>(count) << 8) | countpp;
 }
 
 void Chip8::cycle() {
@@ -78,66 +73,55 @@ void Chip8::cycle() {
     PC += 2;
 
     if (opcode == 0x00E0) {
-        //clear screen
+
+        for (int i = 0; i < 64 * 32; i++) {
+            display[i] = 0;
+        }
     }
     else if (opcode == 0x00EE) {
         sp--;
         PC = stack[sp];
     }
-    else{
-
+    else {
         switch (opcode & 0xF000) {
-
             case 0x1000: {
-                uint16_t nnn = opcode & 0x0FFF;
-                PC = nnn;
+                PC = opcode & 0x0FFF;
                 break;
             }
-
+            case 0x2000: {
+                stack[sp] = PC;
+                sp++;
+                PC = opcode & 0x0FFF;
+                break;
+            }
+            case 0x3000: {
+                uint8_t x = (opcode & 0x0F00) >> 8;
+                uint8_t kk = opcode & 0x00FF;
+                if (V[x] == kk) PC += 2;
+                break;
+            }
+            case 0x4000: {
+                uint8_t x = (opcode & 0x0F00) >> 8;
+                uint8_t kk = opcode & 0x00FF;
+                if (V[x] != kk) PC += 2;
+                break;
+            }
+            case 0x5000: {
+                uint8_t x = (opcode & 0x0F00) >> 8;
+                uint8_t y = (opcode & 0x00F0) >> 4;
+                if (V[x] == V[y]) PC += 2;
+                break;
+            }
             case 0x6000: {
                 uint8_t x = (opcode & 0x0F00) >> 8;
                 uint8_t kk = opcode & 0x00FF;
                 V[x] = kk;
                 break;
             }
-
-            case 0x2000: {
-                stack [sp] = PC;
-                sp++;
-                uint16_t nnn = opcode & 0x0FFF;
-                PC = nnn;
-                break;
-            }
             case 0x7000: {
                 uint8_t x = (opcode & 0x0F00) >> 8;
                 uint8_t kk = opcode & 0x00FF;
-
                 V[x] = V[x] + kk;
-                break;
-            }
-            case 0x3000: {
-                uint8_t x = (opcode & 0x0F00) >> 8;
-                uint8_t kk = opcode & 0x00FF;
-                if (V[x] == kk) {
-                    PC += 2;
-                }
-                break;
-            }
-            case 0x4000: {
-                uint8_t x = (opcode & 0x0F00) >> 8;
-                uint8_t kk = opcode & 0x00FF;
-                if (V[x] != kk) {
-                    PC += 2;
-                }
-                break;
-            }
-            case 0x5000: {
-                uint8_t x = (opcode & 0x0F00) >> 8;
-                uint8_t y = (opcode & 0x00F0) >> 4;
-
-                if (V[x] == V[y]) {
-                    PC += 2;
-                }
                 break;
             }
             case 0x8000: {
@@ -145,22 +129,10 @@ void Chip8::cycle() {
                 uint8_t y = (opcode & 0x00F0) >> 4;
 
                 switch (opcode & 0x000F) {
-                    case 0x00: {
-                        V[x] = V[y];
-                        break;
-                    }
-                    case 0x01: {
-                        V[x] = V[x] | V[y];
-                        break;
-                    }
-                    case 0x02: {
-                        V[x] = V[x] & V[y];
-                        break;
-                    }
-                    case 0x03: {
-                        V[x] = V[x] ^ V[y];
-                        break;
-                    }
+                    case 0x00: V[x] = V[y]; break;
+                    case 0x01: V[x] |= V[y]; break;
+                    case 0x02: V[x] &= V[y]; break;
+                    case 0x03: V[x] ^= V[y]; break;
                     case 0x04: {
                         uint16_t result = V[x] + V[y];
                         V[0xF] = (result > 255) ? 1 : 0;
@@ -191,26 +163,21 @@ void Chip8::cycle() {
             case 0x9000: {
                 uint8_t x = (opcode & 0x0F00) >> 8;
                 uint8_t y = (opcode & 0x00F0) >> 4;
-                if (V[x] != V[y]) {
-                    PC += 2;
-                }
+                if (V[x] != V[y]) PC += 2;
                 break;
             }
             case 0xA000: {
-                uint16_t nnn = opcode & 0x0FFF;
-                I = nnn;
+                I = opcode & 0x0FFF;
                 break;
             }
             case 0xB000: {
-                uint16_t nnn = opcode & 0x0FFF;
-                PC = nnn + V[0];
+                PC = (opcode & 0x0FFF) + V[0];
                 break;
             }
             case 0xC000: {
                 uint8_t x = (opcode & 0x0F00) >> 8;
                 uint8_t kk = opcode & 0x00FF;
                 uint8_t rng = static_cast<uint8_t>(std::rand() % 256);
-
                 V[x] = rng & kk;
                 break;
             }
@@ -219,28 +186,43 @@ void Chip8::cycle() {
                 uint8_t y = (opcode & 0x00F0) >> 4;
                 uint8_t height = opcode & 0x000F;
 
+                uint8_t xPos = V[x] % 64;
+                uint8_t yPos = V[y] % 32;
+
                 V[0xF] = 0;
 
                 for (int row = 0; row < height; row++) {
                     uint8_t spriteByte = memory[I + row];
+                    if (yPos + row >= 32) break;
 
                     for (int col = 0; col < 8; col++) {
-                        // Hier isoliert man das jeweilige Bit aus dem spriteByte von links nach rechts...
-                        // Und prüft die XOR-Kollision mit dem Bildschirm
+                        if (xPos + col >= 64) break;
+                        uint8_t pixel = (spriteByte >> (7 - col)) & 0x1;
+
+                        if (pixel == 1) {
+                            int index = (xPos + col) + ((yPos + row) * 64);
+                            if (display[index] == 1) {
+                                V[0xF] = 1;
+                            }
+                            display[index] ^= 1;
+                        }
                     }
                 }
                 break;
             }
             case 0xE000: {
+                uint8_t x = (opcode & 0x0F00) >> 8;
                 switch (opcode & 0x00FF) {
                     case 0x9E: {
-                        uint8_t x = (opcode & 0x0F00) >> 8;
-                        //if keypad[V[x]] == true PC += 2
+                        if (isKeyPressed(V[x])) {
+                            PC += 2;
+                        }
                         break;
                     }
                     case 0xA1: {
-                        uint8_t x = (opcode & 0x0F00) >> 8;
-                        //if keypad[V[x]] == false PC += 2
+                        if (!isKeyPressed(V[x])) {
+                            PC += 2;
+                        }
                         break;
                     }
                 }
@@ -265,7 +247,19 @@ void Chip8::cycle() {
                     }
                     case 0x0A: {
                         uint8_t x = (opcode & 0x0F00) >> 8;
-                        //wait for keyboard input, if no -> PC -=2
+                        bool anyKeyPressed = false;
+
+                        for (uint8_t i = 0; i < 16; i++) {
+                            if (isKeyPressed(i)) {
+                                V[x] = i;
+                                anyKeyPressed = true;
+                                break;
+                            }
+                        }
+
+                        if (!anyKeyPressed) {
+                            PC -= 2;
+                        }
                         break;
                     }
                     case 0x1E: {
@@ -302,7 +296,15 @@ void Chip8::cycle() {
                 }
                 break;
             }
-
         }
+    }
+}
+
+void Chip8::updateTimers() {
+    if (delay_timer > 0) {
+        delay_timer--;
+    }
+    if (sound_timer > 0) {
+        sound_timer--;
     }
 }

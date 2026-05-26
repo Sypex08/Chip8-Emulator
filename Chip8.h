@@ -1,27 +1,41 @@
 #ifndef UNTITLED_CHIP8_H
 #define UNTITLED_CHIP8_H
+
 #include <string>
-#endif //UNTITLED_CHIP8_H
-
 #include <cstdint>
+
 class Chip8 {
-    public:
-        Chip8();
-        void loadROM(const std::string& filename);
-        uint16_t FETCH();
-        void cycle();
-    private:
-    uint8_t memory[4096]; //RAM
-    uint8_t V[16]; //V0-VF Reg
-    uint8_t I; //Index Reg
+public:
+    Chip8();
+    void loadROM(const std::string& filename);
+    uint16_t FETCH();
+    void cycle();
+    void updateTimers();
+    const uint8_t* getDisplay() const { return display; }
 
-    uint16_t PC; //Program Counter
-    uint16_t stack[16]; //Stack
+    void setKeyState(uint8_t key, bool isPressed) {
+        if (key < 16) keypad[key] = isPressed ? 1 : 0;
+    }
 
-    uint8_t sp; //Stack Pointer
-    uint8_t delay_timer; //Countdown for game delay
-    uint8_t sound_timer; //Countdown for sound
-    uint8_t cycle_timer;
+    
+    bool isKeyPressed(uint8_t key) const {
+        return (key < 16) ? (keypad[key] == 1) : false;
+    }
 
+private:
+    uint8_t memory[4096];
+    uint8_t V[16];
+    uint16_t I;
 
+    uint16_t PC;
+    uint16_t stack[16];
+
+    uint8_t sp;
+    uint8_t delay_timer;
+    uint8_t sound_timer;
+
+    uint8_t display[64 * 32];
+    uint8_t keypad[16];
 };
+
+#endif //UNTITLED_CHIP8_H
