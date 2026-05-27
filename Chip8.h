@@ -12,6 +12,9 @@ public:
     void cycle();
     void updateTimers();
     const uint8_t* getDisplay() const { return display; }
+    void reset();
+    uint8_t getSoundTimer() const { return sound_timer;}
+
 
     void setKeyState(uint8_t key, bool isPressed) {
         if (key < 16) keypad[key] = isPressed ? 1 : 0;
@@ -21,6 +24,7 @@ public:
     bool isKeyPressed(uint8_t key) const {
         return (key < 16) ? (keypad[key] == 1) : false;
     }
+
 
 private:
     uint8_t memory[4096];
@@ -36,6 +40,7 @@ private:
 
     uint8_t display[64 * 32];
     uint8_t keypad[16];
+
 };
 
 #endif //UNTITLED_CHIP8_H

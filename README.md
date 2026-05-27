@@ -61,7 +61,9 @@ Chip8.h / Chip8.cpp – Core CPU logic, handles registers, 4KB RAM, and opcode e
 main.cpp – Manages the SFML window, core application loop, display rendering, and CPU clock timing.
 
 ## Roadmap / Upcoming Features
-[ ] Integrate an audio library to make the sound timer audible.
+[x] Integrate an audio library to make the sound timer audible.
 
 [ ] Add a native file-dialog picker for easily loading ROMs at runtime.
 
+
+Credits to https://github.com/kripod for releasing the ROM!

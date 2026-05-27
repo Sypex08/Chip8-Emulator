@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
+#include <SFML/Audio.hpp>
 
 const uint8_t FONTSET[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -23,14 +24,14 @@ const uint8_t FONTSET[80] = {
 };
 
 Chip8::Chip8():
-    PC(0x200),
+    memory{},
+    V{},
     I(0),
+    PC(0x200),
+    stack{},
     sp(0),
     delay_timer(0),
     sound_timer(0),
-    memory{},
-    V{},
-    stack{},
     display{},
     keypad{}
 {
@@ -40,6 +41,8 @@ Chip8::Chip8():
 }
 
 void Chip8::loadROM(const std::string& filename) {
+    reset();
+
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
 
     if (!file.is_open()) {
@@ -307,4 +310,24 @@ void Chip8::updateTimers() {
     if (sound_timer > 0) {
         sound_timer--;
     }
+}
+
+void Chip8::reset() {
+
+    PC = 0x200;
+    I = 0;
+    delay_timer = 0;
+    sound_timer = 0;
+
+    for (int i = 0 ; i < 4096 ; i++) {memory[i] = 0;}
+    for (int i = 0 ; i < 16 ; i++) {V[i] = 0;}
+    for (int i = 0 ; i < 16 ; i++) {stack[i] = 0;}
+    for (int i = 0 ; i < 64 * 32 ; i++) {display[i] = 0;}
+    for (int i = 0 ; i < 16 ; i++) {keypad[i] = 0;}
+
+    for (int i = 0 ; i < 80 ; i++) {
+        memory[i] = FONTSET[i];
+    }
+
+
 }
