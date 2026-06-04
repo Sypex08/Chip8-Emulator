@@ -3,18 +3,27 @@
 
 #include <string>
 #include <cstdint>
+#include <filesystem>
+#include <vector>
+#include <SFML/Graphics/RenderWindow.hpp>
 
 class Chip8 {
 public:
+    bool menuOpen = false;
+    bool ROMsLoaded = false;
     Chip8();
     void loadROM(const std::string& filename);
     uint16_t FETCH();
     void cycle();
+    int selectedGame = 0;
     void updateTimers();
     const uint8_t* getDisplay() const { return display; }
     void reset();
     uint8_t getSoundTimer() const { return sound_timer;}
-
+    void ROMswitchWindow(sf::RenderWindow& window);
+    std::string gamePath;
+    std::vector<std::string> gameList;
+    std::string loadedROMs;
 
     void setKeyState(uint8_t key, bool isPressed) {
         if (key < 16) keypad[key] = isPressed ? 1 : 0;

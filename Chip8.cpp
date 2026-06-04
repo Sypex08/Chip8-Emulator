@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
+#include <filesystem>
 
 const uint8_t FONTSET[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -63,6 +65,53 @@ void Chip8::loadROM(const std::string& filename) {
     file.close();
 
     std::cout << "Successfully loaded " << size << " bytes into memory." << std::endl;
+}
+
+void Chip8::ROMswitchWindow(sf::RenderWindow& window) {
+    sf::Font font("../Font.ttf");
+    sf::Text MenuText(font,loadedROMs);
+
+
+
+    menuOpen = true;
+
+    if (!ROMsLoaded) {
+
+        for (const auto & entry : std::filesystem::directory_iterator(gamePath)) {
+            gameList.push_back(entry.path().string());
+        }
+
+
+        MenuText.setStyle(sf::Text::Bold);
+        MenuText.setFillColor(sf::Color::White);
+
+        window.clear(sf::Color::Black);
+
+        ROMsLoaded = true;
+    }
+
+    else {
+
+        window.clear(sf::Color::Black);
+        for (int i = 0 ; i < gameList.size() ; i++) {
+            MenuText.setString(gameList[i]);
+            if (i == selectedGame) {
+                MenuText.setFillColor(sf::Color::Yellow);
+            }
+            else {
+                MenuText.setFillColor(sf::Color::White);
+            }
+
+
+            MenuText.setPosition(sf::Vector2f(0, 100) + MenuText.getPosition());
+            window.draw(MenuText);
+        }
+
+        window.display();
+
+
+    }
+
 }
 
 uint16_t Chip8::FETCH() {
@@ -318,6 +367,7 @@ void Chip8::reset() {
     I = 0;
     delay_timer = 0;
     sound_timer = 0;
+    menuOpen = false;
 
     for (int i = 0 ; i < 4096 ; i++) {memory[i] = 0;}
     for (int i = 0 ; i < 16 ; i++) {V[i] = 0;}
