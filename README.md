@@ -28,6 +28,19 @@ Original CHIP-8 Keypad:      PC Keyboard Mapping:
 +-+-+-+-+                    +-+-+-+-+
 ```
 
+## ROM Selection Menu Controls
+
+While the emulator is running, you can access the built-in ROM selection menu to browse and load different games without restarting the application.
+
+| Key | Action |
+| :--- | :--- |
+| **Escape (Esc)** | Open / Close the ROM selection menu |
+| **Numpad 1 (NUM 1)** | Navigate UP through the game list |
+| **Numpad 2 (NUM 2)** | Navigate DOWN through the game list |
+| **Numpad 3 (NUM 3)** | Boot / Start the currently selected game |
+
+*Note: When the menu is open, the standard CHIP-8 keypad inputs are paused until you close the menu or start a game.*
+
 ## Prerequisites & Dependencies
 Compiler: C++17 or newer (tested with GCC / Clang on CLion)
 
@@ -63,7 +76,8 @@ main.cpp – Manages the SFML window, core application loop, display rendering, 
 ## Roadmap / Upcoming Features
 [x] Integrate an audio library to make the sound timer audible.
 
-[ ] Add a native file-dialog picker for easily loading ROMs at runtime.
+[x] Add a native file-dialog picker for easily loading ROMs at runtime.
 
+[] Add scrolling in the ROM switch menu to make displaying as many ROMs as the user wants possible
 
-Credits to https://github.com/kripod for releasing the ROM!
+Credits to https://github.com/kripod for releasing the ROMs!
