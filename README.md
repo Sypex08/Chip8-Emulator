@@ -78,6 +78,6 @@ main.cpp – Manages the SFML window, core application loop, display rendering, 
 
 [x] Add a native file-dialog picker for easily loading ROMs at runtime.
 
-[] Add scrolling in the ROM switch menu to make displaying as many ROMs as the user wants possible
+[x] Add scrolling in the ROM switch menu to make displaying as many ROMs as the user wants possible
 
 Credits to https://github.com/kripod for releasing the ROMs!
