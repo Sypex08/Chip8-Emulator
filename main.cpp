@@ -5,6 +5,7 @@
 #include <SFML/Audio.hpp>
 
 int main() {
+    sf::Font font("../Font.ttf");
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
 
@@ -53,11 +54,15 @@ int main() {
                             break;
                         }
                         case (sf::Keyboard::Key::Num1): {
-                            if (chip8.menuOpen && chip8.selectedGame != 0) {
-                                if (chip8.gameList.size() >= chip8.noScrollROMcount) {
+                            if (chip8.selectedGame < chip8.maxROMsOnScreen - 1 && chip8.selectedGame > 0) {
+                                chip8.selectedGame --;
+                            }
+                            else if (chip8.selectedGame >= chip8.maxROMsOnScreen - 1 && chip8.selectedGame > 0) {
+                                chip8.selectedGame --;
+                                if (chip8.ROMloadStartPosition != 0) {
                                     chip8.ROMloadStartPosition --;
                                 }
-                                chip8.selectedGame --;
+
                             }
                             else if (!chip8.menuOpen) {
                                 chip8Key = 0x1;
@@ -67,10 +72,14 @@ int main() {
 
                         case (sf::Keyboard::Key::Num2): {
                             if (chip8.menuOpen && chip8.selectedGame < chip8.gameList.size() - 1) {
-                                if (chip8.gameList.size() >= chip8.noScrollROMcount) {
+                                if (chip8.selectedGame < chip8.maxROMsOnScreen - 1) {
+                                    chip8.selectedGame ++;
+                                }
+                                else if (chip8.selectedGame >= chip8.maxROMsOnScreen - 1) {
+                                    chip8.selectedGame ++;
                                     chip8.ROMloadStartPosition ++;
                                 }
-                                chip8.selectedGame ++;
+
 
                             }
                             else if (!chip8.menuOpen) {
@@ -141,7 +150,7 @@ int main() {
 
         if (chip8.menuOpen) {
             chip8Sound.stop();
-            chip8.ROMswitchWindow(window);
+            chip8.ROMswitchWindow(window, font);
         }
 
         else {

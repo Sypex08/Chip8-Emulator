@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <vector>
+#include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 class Chip8 {
@@ -20,12 +21,12 @@ public:
     const uint8_t* getDisplay() const { return display; }
     void reset();
     uint8_t getSoundTimer() const { return sound_timer;}
-    void ROMswitchWindow(sf::RenderWindow& window);
+    void ROMswitchWindow(sf::RenderWindow& window, const sf::Font& font);
     std::string gamePath;
     std::vector<std::string> gameList;
-    std::string loadedROMs;
-    int noScrollROMcount = 6;
+    int maxROMsOnScreen = 6;
     int ROMloadStartPosition = 0;
+
 
 
     void setKeyState(uint8_t key, bool isPressed) {

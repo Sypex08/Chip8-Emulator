@@ -67,16 +67,12 @@ void Chip8::loadROM(const std::string& filename) {
     std::cout << "Successfully loaded " << size << " bytes into memory." << std::endl;
 }
 
-void Chip8::ROMswitchWindow(sf::RenderWindow& window) {
-
-    sf::Font font("../Font.ttf");
-    sf::Text MenuText(font,loadedROMs);
-
-
-
+void Chip8::ROMswitchWindow(sf::RenderWindow& window, const sf::Font& font) {
+    sf::Text MenuText(font);
     menuOpen = true;
 
     if (!ROMsLoaded) {
+
 
         for (const auto & entry : std::filesystem::directory_iterator(gamePath)) {
             gameList.push_back(entry.path().string());
@@ -85,8 +81,6 @@ void Chip8::ROMswitchWindow(sf::RenderWindow& window) {
 
         MenuText.setStyle(sf::Text::Bold);
         MenuText.setFillColor(sf::Color::White);
-
-        window.clear(sf::Color::Black);
 
         ROMsLoaded = true;
     }
@@ -379,6 +373,5 @@ void Chip8::reset() {
     for (int i = 0 ; i < 80 ; i++) {
         memory[i] = FONTSET[i];
     }
-
 
 }
