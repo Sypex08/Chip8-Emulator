@@ -68,6 +68,7 @@ void Chip8::loadROM(const std::string& filename) {
 }
 
 void Chip8::ROMswitchWindow(sf::RenderWindow& window) {
+
     sf::Font font("../Font.ttf");
     sf::Text MenuText(font,loadedROMs);
 
@@ -93,7 +94,7 @@ void Chip8::ROMswitchWindow(sf::RenderWindow& window) {
     else {
 
         window.clear(sf::Color::Black);
-        for (int i = 0 ; i < gameList.size() ; i++) {
+        for (int i = ROMloadStartPosition ; i < gameList.size(); i++) {
             MenuText.setString(gameList[i]);
             if (i == selectedGame) {
                 MenuText.setFillColor(sf::Color::Yellow);

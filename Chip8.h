@@ -24,6 +24,9 @@ public:
     std::string gamePath;
     std::vector<std::string> gameList;
     std::string loadedROMs;
+    int noScrollROMcount = 6;
+    int ROMloadStartPosition = 0;
+
 
     void setKeyState(uint8_t key, bool isPressed) {
         if (key < 16) keypad[key] = isPressed ? 1 : 0;
@@ -49,6 +52,7 @@ private:
 
     uint8_t display[64 * 32];
     uint8_t keypad[16];
+
 
 };
 

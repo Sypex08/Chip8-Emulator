@@ -54,8 +54,10 @@ int main() {
                         }
                         case (sf::Keyboard::Key::Num1): {
                             if (chip8.menuOpen && chip8.selectedGame != 0) {
+                                if (chip8.gameList.size() >= chip8.noScrollROMcount) {
+                                    chip8.ROMloadStartPosition --;
+                                }
                                 chip8.selectedGame --;
-
                             }
                             else if (!chip8.menuOpen) {
                                 chip8Key = 0x1;
@@ -64,7 +66,10 @@ int main() {
                         }
 
                         case (sf::Keyboard::Key::Num2): {
-                            if (chip8.menuOpen && chip8.selectedGame < chip8.gameList.size() - 1 ) {
+                            if (chip8.menuOpen && chip8.selectedGame < chip8.gameList.size() - 1) {
+                                if (chip8.gameList.size() >= chip8.noScrollROMcount) {
+                                    chip8.ROMloadStartPosition ++;
+                                }
                                 chip8.selectedGame ++;
 
                             }
@@ -76,6 +81,7 @@ int main() {
 
                         case (sf::Keyboard::Key::Num3): {
                             if (chip8.menuOpen) {
+                                chip8.ROMloadStartPosition = 0;
                                 chip8.reset();
                                 chip8.loadROM(chip8.gameList[chip8.selectedGame]);
                                 chip8.selectedGame = 0;
@@ -134,6 +140,7 @@ int main() {
             }
 
         if (chip8.menuOpen) {
+            chip8Sound.stop();
             chip8.ROMswitchWindow(window);
         }
 
@@ -151,8 +158,9 @@ int main() {
             if (timerClock.getElapsedTime().asMilliseconds() >= 16) {
 
                 if (chip8.getSoundTimer() > 0) {
-                    if (chip8Sound.getStatus() != sf::Sound::Status::Playing) {
+                    if (chip8Sound.getStatus() != sf::Sound::Status::Playing && !chip8.menuOpen) {
                         chip8Sound.play();
+
                     }
                 }
                 else {
